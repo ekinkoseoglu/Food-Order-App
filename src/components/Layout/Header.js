@@ -9,7 +9,7 @@ const Header = (props) => {
     <Fragment>
       <header className={classes.header}>
         <h1>ReactMeals</h1>
-        <HeaderCartButton onClick={props.onShowCartModal}>
+        <HeaderCartButton onShowCartModal={props.onShowCartModal}>
           Cart
         </HeaderCartButton>
       </header>
