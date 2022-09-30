@@ -7,6 +7,8 @@ import Modal from "../UI/Modal";
 import classes from "./Cart.module.css";
 
 const Cart = (props) => {
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [didSubmit, setDidSubmit] = useState(false);
   const [isCheckout, setIsCheckout] = useState(false);
   const cartCtx = useContext(CartContext);
 
@@ -25,6 +27,23 @@ const Cart = (props) => {
     setIsCheckout(true);
   };
 
+  const userConfirmHandler = async (userData) => {
+    setIsSubmitting(true);
+    await fetch(
+      "https://react-test-c2ee8-default-rtdb.firebaseio.com/orders.json",
+      {
+        method: "POST",
+        body: JSON.stringify({
+          user: userData,
+          orderedItems: cartCtx.items,
+        }),
+      }
+    );
+    setIsSubmitting(false);
+    setDidSubmit(true);
+    cartCtx.clearCart();
+  };
+
   const cartItems = (
     <ul className={classes["cart-items"]}>
       {cartCtx.items.map((item) => (
@@ -38,14 +57,19 @@ const Cart = (props) => {
     </ul>
   );
 
-  return (
-    <Modal onHideCartModal={props.onHideCartModal}>
+  const cartModalContent = (
+    <React.Fragment>
       {cartItems}
       <div className={classes.total}>
         <span>Total Amount</span>
         <span>{totalAmount}</span>
       </div>
-      {isCheckout && <Checkout onHideCartModal={props.onHideCartModal} />}
+      {isCheckout && (
+        <Checkout
+          onConfirm={userConfirmHandler}
+          onHideCartModal={props.onHideCartModal}
+        />
+      )}
       {!isCheckout && (
         <div className={classes.actions}>
           <button
@@ -61,6 +85,27 @@ const Cart = (props) => {
           )}
         </div>
       )}
+    </React.Fragment>
+  );
+
+  const isSubmittingModalContent = <p>Sending order data...</p>;
+
+  const didSubmitModalContent = (
+    <React.Fragment>
+      <p>Successfully sent the order!</p>
+      <div className={classes.actions}>
+        <button onClick={props.onHideCartModal} className={classes.button}>
+          Close
+        </button>
+      </div>
+    </React.Fragment>
+  );
+
+  return (
+    <Modal onHideCartModal={props.onHideCartModal}>
+      {!isSubmitting && !didSubmit && cartModalContent}
+      {isSubmitting && isSubmittingModalContent}
+      {!isSubmitting && didSubmit && didSubmitModalContent}
     </Modal>
   );
 };
