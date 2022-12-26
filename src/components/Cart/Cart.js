@@ -1,5 +1,5 @@
 import React, { useContext, useState } from "react";
-import CartContext from "../../store/cart-context";
+import CartContext from "../../shared/store/cart-context";
 import CartIcon from "../Cart/CartIcon";
 import CartItem from "./CartItem";
 import Checkout from "./Checkout";
